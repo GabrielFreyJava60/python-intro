@@ -1,31 +1,38 @@
-# HW 22 Tasks for figuring out O[N] solutions
+# HW#35 Definition
 
-## Function isSumTwo
+## Write two functions according to TODO docstring and tests (see test_regular_expressions.py)
 
-* Takes two parameters: list of integer numbers (numbers) and one integer number (sum)
-* Returns True (T should be capital) if the given list (numbers) contains two items, sum of which equals the given number (sum), otherwise returns False
+### Function ipV4AddressRe
 
-### Examples
+Returns a compiled regular expression pattern that validates IPv4 addresses.
 
-* isSumTwo([1, 2, 3, 4], 4) -> True
-* isSumTwo([1, 2, 3, 4], 2) -> False
-
-### Unit tests
-
-Unit tests in a separate file (module)
-
-## Function maxNegativeRepr
-
-* Takes one parameter: list of integer numbers (numbers)
-* Returns either maximal positive number from the given list having its negative representation or -1 if no any
+* IPv4 address consists of four decimal numbers (octets) from 0 to 255, separated by dots
+* Each octet can be:
+  - 250-255 (25[0-5])
+  - 200-249 (2[0-4][0-9])
+  - 0-199 ([01]?[0-9][0-9]?)
 
 ### Examples
 
-* maxNegativeRepr(100, 4, 1, -1, -4, -100) -> 100
-* maxNegativeRepr(100, 4, 1, 1, 4, 100, -1) -> 1
-* maxNegativeRepr(100, 4, 1, 1, 4, 100, 1, -2) -> -1
+* Valid: `192.168.1.1`, `0.0.0.0`, `255.255.255.255`
+* Invalid: `256.256.256.256`, `192.168.1`, `abc.def.ghi.jkl`
 
-### Unit tests
+### Function mobileIsraelNumberRe
 
-Unit tests in a separate file (module)
+Returns a compiled regular expression pattern that validates Israeli mobile phone numbers.
 
+* Israeli mobile numbers start with `05` followed by 8 digits
+* Total length: 10 digits
+* Format: `05XXXXXXXX`
+
+### Examples
+
+* Valid: `0521234567`, `0501234567`, `0541234567`
+* Invalid: `0621234567`, `052123456`, `521234567`
+
+## Make sure the specified test pass
+
+Run tests with:
+```bash
+python3 -m pytest test_regular_expressions.py -v
+```
