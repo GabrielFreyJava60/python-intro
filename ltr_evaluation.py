@@ -2,76 +2,93 @@ import operator as op
 import regular_expressions as regexp
 import re
 
-__ops: dict = {
+
+class ErrorMessages:
+    SYNTAX_ERROR = "syntax error"
+    PAIRING_ERROR = "parentheses pairing error"
+    BOTH_ERRORS = "syntax error and parentheses pairing error"
+    VALID = "valid"
+
+
+class Patterns:
+    ADJACENT_DIGITS = r'\d\s+\d'
+    WHITESPACE = r"\s+"
+    INNERMOST_PARENTHESES = r"\([^()]+\)"
+
+
+OPERATORS: dict = {
     "+": op.add,
     "-": op.sub,
     "*": op.mul,
     "/": op.itruediv,
     "**": op.pow
 }
-__exprPattern = re.compile(regexp.arithmeticExpression(__ops))
-__operatorPattern = re.compile(regexp.arithmeticOperatorRe(__ops))
-__operandPattern = re.compile(r"[\d.]+")
+
+_expr_pattern = re.compile(regexp.arithmeticExpression(OPERATORS))
+_operator_pattern = re.compile(regexp.arithmeticOperatorRe(OPERATORS))
+_operand_pattern = re.compile(r"[\d.]+")
 
 
-def __checkParenthesesPairing(expr: str) -> bool:
-    counter = 0
+def _check_parentheses_pairing(expr: str) -> bool:
+    depth = 0
     for char in expr:
         if char == '(':
-            counter += 1
+            depth += 1
         elif char == ')':
-            counter -= 1
-        if counter < 0:
+            depth -= 1
+        if depth < 0:
             return False
-    return counter == 0
+    return depth == 0
 
 
-def _checkArithmeticExpr(expr: str) -> tuple[bool, str]:
-    if re.search(r'\d\s+\d', expr):
-        pairing_valid = __checkParenthesesPairing(expr)
-        if not pairing_valid:
-            return False, "syntax error and parentheses pairing error"
-        return False, "syntax error"
+def _check_arithmetic_expr(expr: str) -> tuple[bool, str]:
+    has_adjacent_digits = bool(re.search(Patterns.ADJACENT_DIGITS, expr))
+    expr_normalized = re.sub(Patterns.WHITESPACE, "", expr)
     
-    expr_no_spaces = re.sub(r"\s+", "", expr)
+    is_syntax_valid = bool(re.fullmatch(_expr_pattern, expr_normalized)) and not has_adjacent_digits
+    is_pairing_valid = _check_parentheses_pairing(expr_normalized)
     
-    syntax_valid = bool(re.fullmatch(__exprPattern, expr_no_spaces))
-    pairing_valid = __checkParenthesesPairing(expr_no_spaces)
+    if not is_syntax_valid and not is_pairing_valid:
+        return False, ErrorMessages.BOTH_ERRORS
+    if not is_syntax_valid:
+        return False, ErrorMessages.SYNTAX_ERROR
+    if not is_pairing_valid:
+        return False, ErrorMessages.PAIRING_ERROR
     
-    if not syntax_valid and not pairing_valid:
-        return False, "syntax error and parentheses pairing error"
-    elif not syntax_valid:
-        return False, "syntax error"
-    elif not pairing_valid:
-        return False, "parentheses pairing error"
-    
-    return True, "valid"
+    return True, ErrorMessages.VALID
 
 
-def __binCompute(op1: float, op2: int, operation: float) -> float:
-    operator = __ops.get(operation)
-    if not operator:
+def _compute_binary(left: float, right: float, operation: str) -> float:
+    operator_func = OPERATORS.get(operation)
+    if not operator_func:
         raise ValueError(f"{operation} not found")
-    return operator(op1, op2)
+    return operator_func(left, right)
 
 
-def __ltrEvaluationNoParentheses(expr: str) -> float:
-    operands: list[str] = re.split(__operatorPattern, expr)
-    operators: list[str] = re.split(__operandPattern, expr)
-    res = float(operands[0])
+def _evaluate_flat_expression(expr: str) -> float:
+    operands = re.split(_operator_pattern, expr)
+    operators = re.split(_operand_pattern, expr)
+    
+    result = float(operands[0])
     for i in range(1, len(operands)):
-        res = __binCompute(res, float(operands[i]), operators[i])
-    return res
+        result = _compute_binary(result, float(operands[i]), operators[i])
+    return result
 
 
-def ltrEvaluation(expr: str) -> int:
-    is_valid, error_msg = _checkArithmeticExpr(expr)
+def ltr_evaluation(expr: str) -> float:
+    is_valid, error_msg = _check_arithmetic_expr(expr)
     if not is_valid:
         raise ValueError(f"{error_msg} in '{expr}'")
     
-    expr = re.sub(r"\s+", "", expr)
-    while mo := re.search(r"\([^()]+\)", expr):
-        inner = mo.group()[1:-1]
-        value = __ltrEvaluationNoParentheses(inner)
-        expr = expr[:mo.start()] + str(value) + expr[mo.end():]
-    return __ltrEvaluationNoParentheses(expr)
+    expr = re.sub(Patterns.WHITESPACE, "", expr)
+    
+    while match := re.search(Patterns.INNERMOST_PARENTHESES, expr):
+        inner_expr = match.group()[1:-1]
+        value = _evaluate_flat_expression(inner_expr)
+        expr = expr[:match.start()] + str(value) + expr[match.end():]
+    
+    return _evaluate_flat_expression(expr)
+
+
+_checkArithmeticExpr = _check_arithmetic_expr
+ltrEvaluation = ltr_evaluation
