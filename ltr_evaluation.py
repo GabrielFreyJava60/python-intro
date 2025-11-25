@@ -29,6 +29,10 @@ _operator_pattern = re.compile(regexp.arithmeticOperatorRe(OPERATORS))
 _operand_pattern = re.compile(r"[\d.]+")
 
 
+def _normalize_expression(expr: str) -> str:
+    return re.sub(Patterns.WHITESPACE, "", expr)
+
+
 def _check_parentheses_pairing(expr: str) -> bool:
     depth = 0
     for char in expr:
@@ -43,7 +47,7 @@ def _check_parentheses_pairing(expr: str) -> bool:
 
 def _check_arithmetic_expr(expr: str) -> tuple[bool, str]:
     has_adjacent_digits = bool(re.search(Patterns.ADJACENT_DIGITS, expr))
-    expr_normalized = re.sub(Patterns.WHITESPACE, "", expr)
+    expr_normalized = _normalize_expression(expr)
     
     is_syntax_valid = bool(re.fullmatch(_expr_pattern, expr_normalized)) and not has_adjacent_digits
     is_pairing_valid = _check_parentheses_pairing(expr_normalized)
@@ -80,14 +84,14 @@ def ltr_evaluation(expr: str) -> float:
     if not is_valid:
         raise ValueError(f"{error_msg} in '{expr}'")
     
-    expr = re.sub(Patterns.WHITESPACE, "", expr)
+    expr_normalized = _normalize_expression(expr)
     
-    while match := re.search(Patterns.INNERMOST_PARENTHESES, expr):
+    while match := re.search(Patterns.INNERMOST_PARENTHESES, expr_normalized):
         inner_expr = match.group()[1:-1]
         value = _evaluate_flat_expression(inner_expr)
-        expr = expr[:match.start()] + str(value) + expr[match.end():]
+        expr_normalized = expr_normalized[:match.start()] + str(value) + expr_normalized[match.end():]
     
-    return _evaluate_flat_expression(expr)
+    return _evaluate_flat_expression(expr_normalized)
 
 
 _checkArithmeticExpr = _check_arithmetic_expr
