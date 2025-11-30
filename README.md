@@ -36,14 +36,26 @@ Interactive integration test
 
 ## Setup
 
-### 1. Install Ollama and phi-3 model
+### Phi-3 Chat Installation (macOS)
+
+Phi-3 model is already installed! ✅
+
+**Location:** `~/Downloads/Ollama.app`
+**Model:** phi3:latest (2.2 GB)
+**Status:** Running on localhost:11434
+
+### Start Ollama Server
+
 ```bash
-curl -fsSL https://ollama.com/install.sh | sh
-ollama pull phi3
-ollama serve
+./start_ollama.sh
 ```
 
-### 2. Install Python dependencies
+Or manually:
+```bash
+~/Downloads/Ollama.app/Contents/Resources/ollama serve &
+```
+
+### Install Python dependencies
 ```bash
 pip install -r requirements.txt
 ```
@@ -55,9 +67,27 @@ pip install -r requirements.txt
 python3 main.py
 ```
 
+Example:
+```
+Phi-3 simple chat. Type 'exit' for quit
+You: Привет!
+Agent:  Здравствуйте!
+____________________________________________________________
+You: exit
+bye
+```
+
 ### Test Weather Function
 ```bash
 python3 weather_integration_test.py
+```
+
+Example:
+```
+Enter city or 'exit' -->  London
+Weather in London(United Kingdom): temperature is 10.5°C , Partly cloudy,
+        speed of wind: 15.2 kph, Humidity is 75%
+Enter city or 'exit' -->  exit
 ```
 
 ### Use Weather Function in Code
@@ -66,3 +96,22 @@ from tools import getWeather
 result = getWeather("London")
 print(result)
 ```
+
+## Verify Installation
+
+Check Ollama status:
+```bash
+~/Downloads/Ollama.app/Contents/Resources/ollama list
+```
+
+Expected output:
+```
+NAME           ID              SIZE      MODIFIED       
+phi3:latest    4f2222927938    2.2 GB    49 seconds ago
+```
+
+## Notes
+
+- Ollama server runs on `http://localhost:11434`
+- Phi-3 model size: 2.2 GB
+- Weather API key is included in tools.py
