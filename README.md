@@ -1,117 +1,52 @@
-# HW 37 Definition
+# HW 38 Definition
 
-## Write module tools.py with function getWeather(city) returning string of weather containing the following
+## Integrating the code of calculating expression from HW #36 to the agent
 
-1. City name
-2. Temperature
-3. Condition
-4. Humidity
-5. Wind speed
+### Updating the agent from CW #38
 
-### Requirements:
+#### Adding tool for LTR evaluation like ltrEval(expr: string)
 
-1. Use API of https://www.weatherapi.com/docs/
-2. Real time weather data
+#### Adding rule in the system prompt for LTR evaluation tool involvement
 
-## Write module weather_integration_test.py containing integration test (not unit test) of using getWeather function call for any existing and not existing city
-
-## Architecture
-
-### main.py
-Phi-3 chat implementation using Ollama API (localhost:11434)
-- Interactive chat with phi-3 model
-- Maintains conversation history
-- Type 'exit' to quit
-
-### tools.py
-Weather API integration module
-- `getWeather(city)` function for real-time weather data
-- Returns formatted weather information string
-
-### weather_integration_test.py
-Interactive integration test
-- Allows user to test weather function
-- Enter city name to get weather
-- Type 'exit' to quit
-
-## Setup
-
-### Phi-3 Chat Installation (macOS)
-
-Phi-3 model is already installed! ✅
-
-**Location:** `~/Downloads/Ollama.app`
-**Model:** phi3:latest (2.2 GB)
-**Status:** Running on localhost:11434
-
-### Start Ollama Server
-
-```bash
-./start_ollama.sh
-```
-
-Or manually:
-```bash
-~/Downloads/Ollama.app/Contents/Resources/ollama serve &
-```
-
-### Install Python dependencies
-```bash
-pip install -r requirements.txt
-```
+#### In the case of applying LTR evaluation only the result of the evaluation should be printed out
 
 ## Usage
 
-### Start Phi-3 Chat
+### Start Phi-3 Agent
 ```bash
 python3 main.py
 ```
 
-Example:
+### Example Interactions
+
+**Weather Query:**
 ```
-Phi-3 simple chat. Type 'exit' for quit
-You: Привет!
-Agent:  Здравствуйте!
-____________________________________________________________
-You: exit
-bye
+You: What is the weather in London?
+Agent:  Weather in London(United Kingdom): temperature is 10.5°C...
 ```
 
-### Test Weather Function
-```bash
-python3 weather_integration_test.py
+**LTR Evaluation:**
+```
+You: Calculate (3 + 2) * 10
+Agent:  50.0
 ```
 
-Example:
 ```
-Enter city or 'exit' -->  London
-Weather in London(United Kingdom): temperature is 10.5°C , Partly cloudy,
-        speed of wind: 15.2 kph, Humidity is 75%
-Enter city or 'exit' -->  exit
+You: Evaluate 2 ** 3 + 5
+Agent:  13.0
 ```
 
-### Use Weather Function in Code
-```python
-from tools import getWeather
-result = getWeather("London")
-print(result)
-```
+## Files
 
-## Verify Installation
+- `main.py` - Phi-3 chat agent with tool routing
+- `tools.py` - Available tools (getWeather, ltrEval)
+- `system_content.py` - System prompt with tool rules
+- `thinking_dots.py` - Loading animation
+- `ltr_evaluation.py` - LTR expression evaluator from HW#36
+- `weather_integration_test.py` - Weather function test
 
-Check Ollama status:
-```bash
-~/Downloads/Ollama.app/Contents/Resources/ollama list
-```
+## Requirements
 
-Expected output:
-```
-NAME           ID              SIZE      MODIFIED       
-phi3:latest    4f2222927938    2.2 GB    49 seconds ago
-```
-
-## Notes
-
-- Ollama server runs on `http://localhost:11434`
-- Phi-3 model size: 2.2 GB
-- Weather API key is included in tools.py
+- Ollama with phi3 model running on localhost:11434
+- Python 3.10+
+- requests library
