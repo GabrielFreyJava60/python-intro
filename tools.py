@@ -1,5 +1,6 @@
 import requests
 from ltr_evaluation import ltrEval
+from travel_info import travelInfoProvider
 
 
 URL = "http://api.weatherapi.com/v1/current.json"
@@ -18,5 +19,6 @@ def getWeather(city: str) -> str:
 
 TOOLS: dict = {
     "getWeather": getWeather,
-    "ltrEval": ltrEval
+    "ltrEval": ltrEval,
+    "travelInfoProvider": travelInfoProvider
 }

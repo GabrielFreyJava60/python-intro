@@ -23,13 +23,22 @@ def chatRequest(messages: dict) -> str:
     return data["message"]["content"]
 
 
-def extractJSON(text: str) -> dict | None:
-    regex: str = r"\{.*tool.*arguments.*\}"
+def extractJSON(text: str, properties: list[str] = None) -> dict | None:
+    if properties is None:
+        properties = ["tool", "arguments"]
+    
+    regex: str = r"\{[^{}]*\}"
     match: re.Match = re.search(regex, text, re.DOTALL)
     res = None
     if match:
         try:
-            res = json.loads(match.group())
+            data = json.loads(match.group())
+            res = {}
+            for prop in properties:
+                if prop in data:
+                    res[prop] = data[prop]
+            if not res:
+                res = None
         except Exception:
             pass
     return res

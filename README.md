@@ -1,14 +1,20 @@
-# HW 38 Definition
+# HW 39 Definition
 
-## Integrating the code of calculating expression from HW #36 to the agent
+## Update function travelInfoProvider
 
-### Updating the agent from CW #38
+### 1. Extract Lines 11-19 to one function extractJSON
+- extractJSON should be universal function taking list of some ordered properties that should be in JSON
+- For example, extractJSON(text:str, properties: list[str])->dict for extracting JSON presenting tool call
+- extractJSON(text, ["tool", "arguments"]) for extracting tool calls
+- extractJSON(text, ["country", "currency_code"]) for extracting currency code value
 
-#### Adding tool for LTR evaluation like ltrEval(expr: string)
+### 2. Write additional functions for getting exchange rate
+- Function to get exchange rate from codeFrom (currency code of the country from) to codeTo (currency code of the country to)
+- Use the fixer.io API (The most popular currency rates API) with free access key
+- API endpoint: http://data.fixer.io/api/latest?access_key=<API key>
 
-#### Adding rule in the system prompt for LTR evaluation tool involvement
-
-#### In the case of applying LTR evaluation only the result of the evaluation should be printed out
+### 3. Fill property exchangeRate
+- Fill property exchangeRate with proper value received from function #2
 
 ## Usage
 
@@ -36,14 +42,22 @@ You: Evaluate 2 ** 3 + 5
 Agent:  13.0
 ```
 
+**Travel Info Query:**
+```
+You: Get travel info from USA to France
+Agent:  {'countryFrom': 'USA', 'countryTo': 'France', 'currencyCodeFrom': 'USD', 'currencyCodeTo': 'EUR', 'exchangeRate': 0.92}
+```
+
 ## Files
 
-- `main.py` - Phi-3 chat agent with tool routing
-- `tools.py` - Available tools (getWeather, ltrEval)
+- `main.py` - Phi-3 chat agent with tool routing and universal extractJSON function
+- `tools.py` - Available tools (getWeather, ltrEval, travelInfoProvider)
+- `travel_info.py` - Travel info provider with currency exchange (HW#39)
 - `system_content.py` - System prompt with tool rules
 - `thinking_dots.py` - Loading animation
 - `ltr_evaluation.py` - LTR expression evaluator from HW#36
 - `weather_integration_test.py` - Weather function test
+- `travel_info_test.py` - Travel info functionality test
 
 ## Requirements
 
