@@ -24,24 +24,18 @@ def chatRequest(messages: dict) -> str:
 
 
 def extractJSON(text: str, properties: list[str] = None) -> dict | None:
-    if properties is None:
-        properties = ["tool", "arguments"]
+    properties = properties or ["tool", "arguments"]
     
-    regex: str = r"\{[^{}]*\}"
-    match: re.Match = re.search(regex, text, re.DOTALL)
-    res = None
-    if match:
-        try:
-            data = json.loads(match.group())
-            res = {}
-            for prop in properties:
-                if prop in data:
-                    res[prop] = data[prop]
-            if not res:
-                res = None
-        except Exception:
-            pass
-    return res
+    match = re.search(r"\{[^{}]*\}", text, re.DOTALL)
+    if not match:
+        return None
+    
+    try:
+        data = json.loads(match.group())
+        result = {p: data[p] for p in properties if p in data}
+        return result if result else None
+    except json.JSONDecodeError:
+        return None
 
 
 def callTool(toolData: dict) -> str:

@@ -1,8 +1,16 @@
 import requests
+import logging
 from typing import Optional
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 
 def getExchangeRate(codeFrom: str, codeTo: str, api_key: str = "YOUR_API_KEY_HERE") -> Optional[float]:
+    if not all([codeFrom, codeTo, len(codeFrom) == 3, len(codeTo) == 3]):
+        logger.warning(f"Invalid currency codes: {codeFrom}, {codeTo}")
+        return None
+    
     try:
         url = f"http://data.fixer.io/api/latest"
         params = {
@@ -25,9 +33,19 @@ def getExchangeRate(codeFrom: str, codeTo: str, api_key: str = "YOUR_API_KEY_HER
                     
                     exchange_rate = rate_to / rate_from
                     return round(exchange_rate, 4)
+                else:
+                    logger.error(f"Currency codes not found in rates: {codeFrom}, {codeTo}")
+            else:
+                logger.error(f"API response error: {data.get('error', 'Unknown error')}")
+        else:
+            logger.error(f"HTTP error: {response.status_code}")
         
         return None
-    except Exception:
+    except requests.RequestException as e:
+        logger.error(f"API request failed: {e}")
+        return None
+    except (KeyError, ZeroDivisionError) as e:
+        logger.error(f"Calculation error: {e}")
         return None
 
 
